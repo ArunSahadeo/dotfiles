@@ -4,13 +4,27 @@ set shell=bash
 " Toggle soft wrap
 set wrap
 
+" Show command I am typing
+set showcmd
+
 " Share system clipboard
 set clipboard=unnamedplus
 
 set rtp+=~/.vim/
 
+" Set variable for Vim dotfiles
+if has('win32') || has('win64')
+    let $VIMHOME = $VIM . "/vimfiles"
+else
+    let $VIMHOME = $HOME . "/.vim"
+endif
+
 " Auto match HTML tags
 runtime macros/matchit.vim
+
+" Call local plugins
+    " HTML / CSS snippets
+    runtime internal/snippets.vim
 
 " Tab options
 set expandtab
