@@ -25,6 +25,8 @@ runtime macros/matchit.vim
 " Call local plugins
     " HTML / CSS snippets
     runtime internal/snippets.vim
+    " Dev plugin - Webval
+    runtime internal/webval.vim
 
 " Tab options
 set expandtab
@@ -37,9 +39,11 @@ call plug#begin('~/.vim/plugged')
 Plug 'sheerun/vim-polyglot'
 Plug 'scrooloose/nerdtree'
 Plug 'ctrlpvim/ctrlp.vim'
-Plug 'joonty/vim-phpqa'
 Plug 'valloric/matchtagalways'
 Plug 'tpope/vim-fugitive'
+Plug 'vim-syntastic/syntastic'
+Plug 'syngan/vim-vimlint'
+Plug 'vim-jp/vim-vimlparser'
 
 " Initialise plugin system
 call plug#end()
@@ -52,6 +56,12 @@ set mouse=a
 
 " Make Vim case insensitive
 set ignorecase
+
+" Syntastic checker settings
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+let g:syntastic_check_on_open = 1
 
 " HTML tag autocomplete
 autocmd FileType html set omnifunc=htmlcomplete#CompleteTags
