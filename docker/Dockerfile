@@ -2,7 +2,11 @@ FROM gcc:latest
 
 ENV HOME /home/aruns
 
-ENTRYPOINT "start.sh"
+COPY start.sh /start.sh
+
+RUN chmod 755 /start.sh
+
+ENTRYPOINT "/start.sh"
 
 RUN apt-get update && \
     apt-get -y install sudo openssl vim
