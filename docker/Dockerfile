@@ -10,7 +10,7 @@ COPY getpwd.sh /getpwd.sh
 RUN chmod 755 /getpwd.sh
 
 RUN apt-get update && \
-    apt-get -y install sudo openssl vim
+    apt-get -y install sudo openssl vim man
 RUN useradd -ms /bin/sh aruns -p $(openssl passwd -crypt `./getpwd.sh`) && adduser aruns sudo
 
 RUN echo "aruns ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
