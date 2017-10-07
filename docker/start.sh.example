@@ -1,3 +1,2 @@
-#!/usr/bin/env bash
-
+#!/usr/bin/env sh 
 export USER_1_PASSWORD="" 
