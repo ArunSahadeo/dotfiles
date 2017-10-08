@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+. ./start.sh
+
+echo $USER_1_PASSWORD
