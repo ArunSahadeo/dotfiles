@@ -1,14 +1,23 @@
 " Use BASH shell
 set shell=bash
-
+" Set line numbering
+set number
+" Enable mouse usage
+set mouse=a
+" Make Vim case insensitive
+set ignorecase
 " Toggle soft wrap
 set wrap
-
 " Show command I am typing
 set showcmd
-
 " Share system clipboard
 set clipboard=unnamedplus
+
+" Tab options
+set expandtab
+set shiftwidth=4
+set tabstop=8
+set softtabstop=4
 
 set rtp+=~/.vim/
 
@@ -23,15 +32,12 @@ endif
 runtime macros/matchit.vim
 
 " Call local plugins
-    " HTML / CSS snippets
-    runtime internal/snippets.vim
-    " Dev plugin - Webval
-    runtime internal/webval.vim
+    " HTML / CSS boilerplate
+    runtime internal/boilerplate.vim
+    " Java plugin
+    runtime internal/java-boilerplate.vim
 
-" Tab options
-set expandtab
-set shiftwidth=4
-set tabstop=4
+autocmd BufNewFile * call LoadSkeleton() 
 
 " Specify plugins directory
 call plug#begin('~/.vim/plugged')
@@ -44,18 +50,18 @@ Plug 'tpope/vim-fugitive'
 Plug 'vim-syntastic/syntastic'
 Plug 'syngan/vim-vimlint'
 Plug 'vim-jp/vim-vimlparser'
+Plug 'SirVer/ultisnips'
+Plug 'ArunSahadeo/webval'
 
 " Initialise plugin system
 call plug#end()
 
-" Set line numbering
-set number
+" UltiSnips settings
 
-" Enable mouse usage
-set mouse=a
+let g:UltiSnipsSnippetDirectories = ['~/.vim/UltiSnips', 'UltiSnips']
 
-" Make Vim case insensitive
-set ignorecase
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 
 " Syntastic checker settings
 set statusline+=%#warningmsg#
