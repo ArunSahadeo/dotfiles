@@ -19,6 +19,11 @@ set shiftwidth=4
 set tabstop=8
 set softtabstop=4
 
+" Tab modifiers
+nnoremap <silent> <F10> :set noexpandtab<CR>:set tabstop=4<CR>:set shiftwidth=4<CR>:set softtabstop=4<CR>
+nnoremap <silent> <F11> :set expandtab<CR>:set tabstop=8<CR>:set shiftwidth=4<CR>:set softtabstop=4<CR>
+nnoremap <silent> <F12> :set noexpandtab<CR>:set tabstop=8<CR>:set shiftwidth=8<CR>:set softtabstop=8<CR>
+
 set rtp+=~/.vim/
 
 " Set variable for Vim dotfiles
