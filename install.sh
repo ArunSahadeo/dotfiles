@@ -129,7 +129,7 @@ apache_config () {
 
     if [[ $WSL && -f /etc/apache2/apache2.conf ]]; then
         sudo cp /etc/apache2/apache2.conf /etc/apache2/apache2.conf.orig
-        sudo sed -i "\$aAcceptFilter https none\nAcceptFilter https none" /etc/apache2/apache2.conf
+        sudo sed -i "\$aAcceptFilter http none\nAcceptFilter https none" /etc/apache2/apache2.conf
         sudo sed -i "s/<Directory \/var\/www\/html>/<Directory \/mnt\/c\/projects\/www>g" /etc/apache2/sites-available/000-default.conf
         sudo a2enmod rewrite
         sudo service apache2 restart
