@@ -11,6 +11,10 @@ htop
 irssi
 jpegtran
 jq
+libapache2-mod-php5.6
+libapache2-mod-php7.1
+libapache2-mod-php7.2
+libapache2-mod-php
 make
 mpv
 mysql-server
