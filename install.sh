@@ -17,7 +17,6 @@ mysql-server
 ncftp
 nodejs
 nmap
-npm
 optipng
 p7zip-full
 php
@@ -82,9 +81,14 @@ xclip
 zip
 )
 
-apache_config() {
+apache_config () {
     userGroups=$(echo `id -Gn $USER`)
     WEBROOT_DIR=""
+
+    if [[ $userGroups =~ (www-data) ]]; then
+        echo "Apache already set up"
+        return 0
+    fi
 
     case "$UBUNTU_RELEASE" in
         '18.'*) sudo a2enmod actions alias proxy_fcgi;;
@@ -103,7 +107,7 @@ apache_config() {
         mkdir -p $WEBROOT_DIR
     fi
 
-    if [[ ! $userGroups =~ [^www-data] ]]; then
+    if [[ ! $userGroups =~ (www-data) ]]; then
         sudo usermod -a -G www-data $USER
     fi 
 
@@ -143,11 +147,23 @@ apache_config() {
     sudo service php7.2-fpm start
 }
 
+configure_mail () {
+    sudo sendmailconfig
+    sudo service apache2 restart
+}
+
 fix_npm_permissions () {
+    # Check if NPM installed
+
+    if [[ ! $(command -v npm) || $(which npm) =~ /mnt/ ]]; then
+        echo "NPM does not seem to be installed."
+        return 1
+    fi
+
     # Fix NPM permissions
-    if [[ $(command -v npm &>/dev/null) ]]; then
+    if [[ $(command -v npm) && $(npm config get prefix) == "/usr" ]]; then
         mkdir -p ~/.npm-global
-        npm config set prefix '~/.npm-global'
+        npm config set prefix "~/.npm-global"
         echo "export PATH=~/.npm-global/bin:$PATH" >> ~/.bashrc
         source ~/.bashrc
     fi
@@ -155,12 +171,24 @@ fix_npm_permissions () {
 
 install_global_npm_dependencies () {
     # Install global NPM dependencies
-    if [[ $(command -v npm &>/dev/null) ]]; then
+    if [[ $(command -v npm) ]]; then
         npm install -g gulp ngrok webpack
     fi
 }
 
 install_composer () {
+    # Add /usr/local/bin to $PATH if not already
+    if ! grep -qe "/usr/local/bin" <<< $PATH; then
+        echo "export PATH=$PATH:/usr/local/bin" >> ~/.bashrc
+        source ~/.bashrc
+    fi
+
+    # Add COMPOSER_HOME environment variable if not already exists
+    if ! grep -qe "COMPOSER_HOME" <<< $(printenv); then
+        echo "export COMPOSER_HOME=\"$HOME/.config/composer\"" >> ~/.bashrc
+        source ~/.bashrc
+    fi
+
     # Install composer
     if [[ ! -f /usr/local/bin/composer ]]; then
         php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
@@ -183,7 +211,7 @@ install_wp () {
 }
 
 install_ruby () {
-    if [[ ! $(command -v rvm &>/dev/null) && ! $(command -v ruby &>/dev/null) ]]; then
+    if [[ ! $(command -v rvm) && ! $(command -v ruby) ]]; then
         curl -sSL https://get.rvm.io | bash
         source ~/.rvm/scripts/rvm
         rvm use ruby --install --default
@@ -191,17 +219,17 @@ install_ruby () {
 }
 
 install_gems () {
-    if [[ ! $(command -v bundle &>/dev/null) ]]; then
+    if [[ ! $(command -v bundle) ]]; then
         gem install bundler
     fi
 
-    if [[ ! $(command -v sass &>/dev/null) ]]; then
+    if [[ ! $(command -v sass) ]]; then
         gem install sass
     fi
 }
 
 install_global_pip_packages () {
-    if [[ ! $(command -v youtube-dl &>/dev/null) ]]; then
+    if [[ ! $(command -v youtube-dl) ]]; then
         pip3 install --user youtube-dl
     fi
 }
@@ -227,7 +255,15 @@ done
 if [[ ${#UNINSTALLED_PACKAGES} == 0 ]]; then
     echo "No uninstalled packages."
 
+    # Source Apache env vars to avoid startup errors
+    source /etc/apache2/envvars 
     apache_config
+
+    if [ "$?" != 0 ]; then
+        exit 1  
+    fi 
+
+    configure_mail
 
     if [ "$?" != 0 ]; then
         exit 1  
@@ -271,6 +307,11 @@ if [[ ${#UNINSTALLED_PACKAGES} == 0 ]]; then
     
     install_global_pip_packages
 
+    # Start PHP-FPM services
+    sudo service php5.6-fpm start
+    sudo service php7.1-fpm start
+    sudo service php7.2-fpm start
+
     exit 0
 fi
 
@@ -278,20 +319,27 @@ if [[ "$UBUNTU_RELEASE" =~ "16." ]]; then
     INSTALL_COMMAND+=" libapache2-mod-fastcgi"
 fi
 
+echo "The uninstalled packages are $UNINSTALLED_PACKAGES"
+
 INSTALL_COMMAND+=" 2>/dev/null"
 
 sudo add-apt-repository -y ppa:ondrej/php
+curl -sL https://deb.nodesource.com/setup_8.x | sudo bash -
 sudo apt-get update -y && sudo apt-get upgrade -y
 
 echo "Installing packages from list."
 eval "$INSTALL_COMMAND"
 
-if [[ ! $(command -v apache2 &>/dev/null) ]]; then
+# Source Apache env vars to avoid startup errors
+source /etc/apache2/envvars 
+
+if [[ ! $(command -v apache2) ]]; then
     echo "Apache does not seem to be installed. Moving on."
     exit 1  
 fi
 
 apache_config
+configure_mail
 fix_npm_permissions
 install_global_npm_dependencies
 install_composer
@@ -299,4 +347,3 @@ install_wp
 install_ruby
 install_gems
 install_global_pip_packages
-
