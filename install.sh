@@ -69,6 +69,7 @@ php7.2-xml
 php7.2-zip
 python3
 python3-pip
+rename
 sendmail
 sshfs
 streamlink
