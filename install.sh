@@ -73,6 +73,7 @@ rename
 sendmail
 sshfs
 streamlink
+tmux
 traceroute
 unrar
 unzip
